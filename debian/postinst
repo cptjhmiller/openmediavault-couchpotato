@@ -31,6 +31,8 @@ case "$1" in
     fi
 
     if [ ! -f /home/couchpotato/.couchpotato/settings.conf ]; then
+		mkdir /home/couchpotato/.couchpotato
+		chown -R couchpotato:users /home/couchpotato/.couchpotato
         echo "[core]
 show_wizard = 1
 [updater]
