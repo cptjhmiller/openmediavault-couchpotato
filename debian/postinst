@@ -27,7 +27,7 @@ case "$1" in
     fi
 
     if [ -e /opt/couchpotato/git ]; then
-        mv /opt/couchpotato/git mv /opt/couchpotato/.git
+        mv /opt/couchpotato/git /opt/couchpotato/.git
     fi
 
     if [ ! -f /home/couchpotato/.couchpotato/settings.conf ]; then
