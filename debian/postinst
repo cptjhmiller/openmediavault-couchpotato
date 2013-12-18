@@ -26,6 +26,16 @@ case "$1" in
         rm /var/run/couchpotato -Rf
     fi
 
+
+    if [ ! -f /home/couchpotato/.couchpotato/settings.conf ]; then
+        echo "[core]
+show_wizard = 1
+[updater]
+git_command = git" > /home/couchpotato/.couchpotato/settings.conf
+        chown couchpotato:users /home/couchpotato/.couchpotato/settings.conf
+    fi
+
+
     chown -R couchpotato:users /opt/couchpotato
     
     #update-rc.d couchpotato defaults
