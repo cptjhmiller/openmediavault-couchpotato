@@ -7,18 +7,11 @@ set -e
 echo "postinst called with $1 - $2"
 case "$1" in
 	configure)
-    if [ -z "$2" ]; then
-        echo "Updating init script links and actions"
-        invoke-rc.d --force couchpotato stop &>/dev/null
-        update-rc.d couchpotato disable &>/dev/null
-    fi
-	
-    if ! omv_config_exists "/config/services/couchpotato"; then
-        echo "Initial configuration."
-        object="<enable>0</enable>"
-        object="${object}<showtab>0</showtab>"
-        omv_config_add_element "/config/services" "couchpotato" "${object}" true
-    fi
+    #if [ -z "$2" ]; then
+    #    echo "Updating init script links and actions"
+    #    invoke-rc.d --force couchpotato stop &>/dev/null
+    #    update-rc.d couchpotato disable &>/dev/null
+    #fi
 
     if ! grep -q "^couchpotato:" /etc/passwd; then
         echo "Adding couchpotato user..."
@@ -50,6 +43,13 @@ git_command = git" > /home/couchpotato/.couchpotato/settings.conf
     chown -R couchpotato:users /opt/couchpotato
     
     update-rc.d couchpotato defaults
+	
+    if ! omv_config_exists "/config/services/couchpotato"; then
+        echo "Initial configuration."
+        object="<enable>0</enable>"
+        object="${object}<showtab>0</showtab>"
+        omv_config_add_element "/config/services" "couchpotato" "${object}" true
+    fi
 
     ;;
 abort-upgrade|abort-remove|abort-deconfigure)
