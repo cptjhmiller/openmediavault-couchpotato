@@ -4,10 +4,9 @@ set -e
 
 . /etc/default/openmediavault
 . /usr/share/openmediavault/scripts/helper-functions
-
+echo "postinst called with $1 - $2"
 case "$1" in
-	echo "postinst called with $1 - $2"
-    configure)
+	configure)
     if [ -z "$2" ]; then
         echo "Updating init script links and actions"
         invoke-rc.d --force couchpotato stop &>/dev/null
