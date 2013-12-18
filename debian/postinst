@@ -26,6 +26,9 @@ case "$1" in
         rm /var/run/couchpotato -Rf
     fi
 
+    if [ -e /opt/couchpotato/git ]; then
+        mv /opt/couchpotato/git mv /opt/couchpotato/.git
+    fi
 
     if [ ! -f /home/couchpotato/.couchpotato/settings.conf ]; then
         echo "[core]
