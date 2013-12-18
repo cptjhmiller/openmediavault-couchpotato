@@ -20,6 +20,7 @@ case "$1" in
                 omv_config_delete "//services/couchpotato"
                 if [ -d "/opt/couchpotato" ]; then
                        rm -Rf /opt/couchpotato/* &>/dev/null
+                       rm -Rf /opt/couchpotato/.git &>/dev/null
                 fi
                 userdel -r couchpotato
         ;;
