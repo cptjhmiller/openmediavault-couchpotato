@@ -59,28 +59,28 @@ class OMVModuleCouchpotato extends OMVModuleServiceAbstract
         if(FALSE === boolval($object['enable']))
             return;
 		
-		$cmd = "/etc/init.d/couchpotato status";
-		$this->exec($cmd, $output);
-		if (strpos($output[0], 'failed!') > 0);
-			$cmd = "update-rc.d couchpotato enable && service couchpotato start 2>&1";
-			$this->exec($cmd, $output);
+        $cmd = "/etc/init.d/couchpotato status";
+        $this->exec($cmd, $output);
+        if (strpos($output[0], 'failed!') > 0);
+            $cmd = "/etc/init.d/couchpotato start 2>&1";
+            $this->exec($cmd, $output);
     }
 
     public function stopService() {
         global $xmlConfig;
-		$xpath  = "//services/couchpotato";
+        $xpath  = "//services/couchpotato";
         $object = $xmlConfig->get($xpath);
         if (is_null($object))
-			throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, $xpath);
+	    throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, $xpath);
 
         if(TRUE === boolval($object['enable']))
             return;
 		
-		$cmd = "/etc/init.d/couchpotato status";
-		$this->exec($cmd, $output);
-		if (strpos($output[0], 'is running') > 0);
-			$cmd = "service couchpotato stop && update-rc.d couchpotato disable 2>&1";
-			$this->exec($cmd, $output);
+        $cmd = "/etc/init.d/couchpotato status";
+        $this->exec($cmd, $output);
+        if (strpos($output[0], 'is running') > 0);
+            $cmd = "/etc/init.d/couchpotato stop 2>&1";
+            $this->exec($cmd, $output);
     }
 
     public function bindListeners(OMVNotifyDispatcher $dispatcher) {
