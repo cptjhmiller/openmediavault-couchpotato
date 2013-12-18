@@ -6,13 +6,20 @@ set -e
 . /usr/share/openmediavault/scripts/helper-functions
 
 case "$1" in
+	echo "postinst called with $1 - $2"
     configure)
     if [ -z "$2" ]; then
         echo "Updating init script links and actions"
         invoke-rc.d --force couchpotato stop &>/dev/null
         update-rc.d couchpotato disable &>/dev/null
     fi
-
+	
+    if ! omv_config_exists "/config/services/couchpotato"; then
+        echo "Initial configuration."
+        object="<enable>0</enable>"
+        object="${object}<showtab>0</showtab>"
+        omv_config_add_element "/config/services" "couchpotato" "${object}" true
+    fi
 
     if ! grep -q "^couchpotato:" /etc/passwd; then
         echo "Adding couchpotato user..."
@@ -32,7 +39,7 @@ case "$1" in
 
     if [ ! -f /home/couchpotato/.couchpotato/settings.conf ]; then
 		mkdir /home/couchpotato/.couchpotato
-		chown -R couchpotato:users /home/couchpotato/.couchpotato
+		chown couchpotato:users /home/couchpotato/.couchpotato -R
         echo "[core]
 show_wizard = 1
 [updater]

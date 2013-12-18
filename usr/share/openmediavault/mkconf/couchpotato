@@ -28,7 +28,7 @@ set -e
 if [ "$(omv_config_get "//services/couchpotato/enable")" != "1" ]; then
 	echo "# Stop/Disable Couchpotato"
 	invoke-rc.d couchpotato stop 1>/dev/null 2>&1 || true
-	update-rc.d couchpotato disable
+	update-rc.d couchpotato disable 2>&1
 	exit 0
 fi
 
@@ -37,5 +37,5 @@ fi
 #invoke-rc.d couchpotato stop 1>/dev/null 2>&1 || true
 
 echo "# Start/Enable Couchpotato"
-update-rc.d couchpotato enable
-service couchpotato start
+update-rc.d couchpotato enable 2>&1
+service couchpotato start 2>&1
