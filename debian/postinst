@@ -41,7 +41,7 @@ git_command = git" > /home/couchpotato/.couchpotato/settings.conf
 
     chown -R couchpotato:users /opt/couchpotato
     
-    #update-rc.d couchpotato defaults
+    update-rc.d couchpotato defaults
 
     ;;
 abort-upgrade|abort-remove|abort-deconfigure)
