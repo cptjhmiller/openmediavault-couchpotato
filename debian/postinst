@@ -4,15 +4,9 @@ set -e
 
 . /etc/default/openmediavault
 . /usr/share/openmediavault/scripts/helper-functions
-echo "postinst called with $1 - $2"
-case "$1" in
-	configure)
-    #if [ -z "$2" ]; then
-    #    echo "Updating init script links and actions"
-    #    invoke-rc.d --force couchpotato stop &>/dev/null
-    #    update-rc.d couchpotato disable &>/dev/null
-    #fi
 
+case "$1" in
+    configure)
     if ! grep -q "^couchpotato:" /etc/passwd; then
         echo "Adding couchpotato user..."
         useradd --create-home --groups users --no-user-group --shell /usr/sbin/nologin couchpotato
@@ -38,23 +32,25 @@ show_wizard = 1
 git_command = git" > /home/couchpotato/.couchpotato/settings.conf
         chown couchpotato:users /home/couchpotato/.couchpotato/settings.conf
     fi
-
-
+    cd /opt/couchpotato
     chown -R couchpotato:users /opt/couchpotato
-    
-    update-rc.d couchpotato defaults
-	
+    chown couchpotato:users /etc/init.d/couchpotato
+    update-rc.d couchpotato defaults >&2
+    chmod 775 /opt/couchpotato -R
+    update-rc.d couchpotato disable >&2
+    git stash >&2
     if ! omv_config_exists "/config/services/couchpotato"; then
         echo "Initial configuration."
         object="<enable>0</enable>"
         object="${object}<showtab>0</showtab>"
+        object="${object}<cp_branch>0</cp_branch>"
         omv_config_add_element "/config/services" "couchpotato" "${object}" true
     fi
 
     ;;
-abort-upgrade|abort-remove|abort-deconfigure)
+    abort-upgrade|abort-remove|abort-deconfigure)
     ;;
-*)
+    *)
     echo "postinst called with unknown argument" >&2
     exit 1
     ;;

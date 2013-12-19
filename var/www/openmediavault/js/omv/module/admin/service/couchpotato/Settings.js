@@ -75,6 +75,31 @@ Ext.define("OMV.module.admin.service.couchpotato.Settings", {
                 boxLabel   : _("Show tab containing Couchpotato web interface frame."),
                 checked    : false
             },{
+                xtype      : "combo",
+                name       : "cp_branch",
+                fieldLabel : _("Branch"),
+                queryMode  : "local",
+                store      : Ext.create("Ext.data.ArrayStore", {
+                    fields : [
+                        "value",
+                        "text"
+                    ],
+                    data   : [
+                        [ 0, _("Master") ],
+                        [ 1, _("Develop") ]
+                    ]
+                }),
+                displayField  : "text",
+                valueField    : "value",
+                allowBlank    : false,
+                editable      : false,
+                triggerAction : "all",
+                value         : 0,
+                plugins       : [{
+                    ptype : "fieldinfo",
+                    text  : _("The branch you want to use.")
+                }]
+            },{
                 xtype   : "button",
                 name    : "opencouchpotato",
                 text    : _("Couchpotato Web Interface"),

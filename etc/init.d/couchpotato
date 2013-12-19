@@ -78,6 +78,31 @@ case "$1" in
         echo "Restarting $DESC"
         start-stop-daemon -d $APP_PATH -c $RUN_AS --start --pidfile $PID_FILE --exec $DAEMON -- $DAEMON_OPTS
         ;;
+
+  master)
+        if is_running; then
+            start-stop-daemon --stop --pidfile $PID_FILE --retry 15
+        fi
+        cd $APP_PATH
+        #git stash
+        git checkout master
+        #chown couchpotato:users /opt/couchpotato -R
+        #chmod 775 /opt/couchpotato -R
+        #git stash
+        start-stop-daemon -d $APP_PATH -c $RUN_AS --start --pidfile $PID_FILE --exec $DAEMON -- $DAEMON_OPTS
+        ;;
+  develop)
+        if is_running; then
+            start-stop-daemon --stop --pidfile $PID_FILE --retry 15
+        fi
+        cd $APP_PATH
+        #git stash
+        git checkout develop
+        #chown couchpotato:users /opt/couchpotato -R
+        #chmod 775 /opt/couchpotato -R
+        #git stash
+        start-stop-daemon -d $APP_PATH -c $RUN_AS --start --pidfile $PID_FILE --exec $DAEMON -- $DAEMON_OPTS
+        ;;
   status)
        status_of_proc -p $PID_FILE "$DAEMON" "$NAME"
        ;;

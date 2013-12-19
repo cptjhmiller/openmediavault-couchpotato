@@ -35,53 +35,51 @@ class OMVRpcServiceCouchpotato extends OMVRpcServiceAbstract {
         $this->registerMethod('setSettings');
     }
 
-    function getSettings($params, $context) {
+    public function getSettings($params, $context) {
         global $xmlConfig;
-
-        // Validate the RPC caller context.
         $this->validateMethodContext($context, array( "role" => OMV_ROLE_ADMINISTRATOR ));
-
-        // Get configuration object
         $object = $xmlConfig->get("//services/couchpotato");
         if (is_null($object))
             throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, "//services/couchpotato");
-        
-		// Modify result data
+
         $object['enable']  = boolval($object['enable']);
         $object['showtab'] = boolval($object['showtab']);
-
+        $object['cp_branch'] = intval($object['cp_branch']);
         return $object;
     }
 
-    function setSettings($params, $context) {
+    public function setSettings($params, $context) {
         global $xmlConfig;
-
-        // Validate the RPC caller context.
+        $oldObject = $xmlConfig->get("//services/couchpotato");
         $this->validateMethodContext($context, array( "role" => OMV_ROLE_ADMINISTRATOR ));
-
-        // Validate the parameters of the RPC service method.
         $this->validateMethodParams($params, '{
-            "type"       : "object",
+            "type" : "object",
             "properties" : {
-                "enable"  : { "type" : "boolean" },
-                "showtab" : { "type" : "boolean" }
+                "enable"        : { "type" : "boolean" },
+                "showtab"       : { "type" : "boolean" },
+                "cp_branch"     : {"type":"integer","enum":[0,1]}
             }
         }');
 
-        // Prepare configuration data
-        $object = array(
-            "enable"  => array_boolval($params, 'enable'),
-            "showtab"  => array_boolval($params, 'showtab')
-		);
+        if ($params['cp_branch'] != $oldObject['cp_branch'])
+            if ($params['cp_branch'] == 0)
+                exec("/etc/init.d/couchpotato master");
+            if ($params['cp_branch'] == 1)
+                exec("/etc/init.d/couchpotato develop");
 
-        // Set configuration object
+        $object = array(
+            "enable"            => array_boolval($params, 'enable'),
+            "showtab"           => array_boolval($params, 'showtab'),
+            "cp_branch"         => $params['cp_branch']
+        );
+
         if (false === $xmlConfig->replace("//services/couchpotato", $object))
             throw new OMVException(OMVErrorMsg::E_CONFIG_SET_OBJECT_FAILED, "//services/couchpotato");
 
-        // Notify configuration changes
         $dispatcher = &OMVNotifyDispatcher::getInstance();
         $dispatcher->notify(OMV_NOTIFY_MODIFY, "org.openmediavault.services.couchpotato", $object);
     }
+
 }
 
 // Register the RPC service.
