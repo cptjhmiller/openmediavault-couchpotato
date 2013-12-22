@@ -39,12 +39,16 @@ class OMVRpcServiceCouchpotato extends OMVRpcServiceAbstract {
         global $xmlConfig;
         $this->validateMethodContext($context, array( "role" => OMV_ROLE_ADMINISTRATOR ));
         $object = $xmlConfig->get("//services/couchpotato");
-        if (is_null($object))
+        if(is_null($object)) {
             throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, "//services/couchpotato");
+        }
 
         $object['enable']  = boolval($object['enable']);
         $object['showtab'] = boolval($object['showtab']);
         $object['cp_branch'] = intval($object['cp_branch']);
+        if($object['cp_repo'] != 0) {
+          $object['cp_repo'] = intval($object['cp_repo']);
+        }
         return $object;
     }
 
@@ -57,24 +61,37 @@ class OMVRpcServiceCouchpotato extends OMVRpcServiceAbstract {
             "properties" : {
                 "enable"        : { "type" : "boolean" },
                 "showtab"       : { "type" : "boolean" },
-                "cp_branch"     : {"type":"integer","enum":[0,1]}
+                "cp_branch"     : { "type" : "integer","enum":[0,1]},
+                "cp_repo"       : { "type" : "integer","enum":[0]}
             }
         }');
 
-        if ($params['cp_branch'] != $oldObject['cp_branch'])
-            if ($params['cp_branch'] == 0)
+        if($params['cp_repo'] != $oldObject['cp_repo']) {
+            if($params['cp_repo'] == 0) {
+                $this->exec("/etc/init.d/sickbeard swap https://github.com/RuudBurger/CouchPotatoServer.git master");
+                $params['sb_branch'] = 0;
+            }
+        }
+
+        if($params['cp_branch'] != $oldObject['cp_branch']) {
+            if($params['cp_branch'] == 0) {
                 exec("/etc/init.d/couchpotato master");
-            if ($params['cp_branch'] == 1)
+			}
+            if ($params['cp_branch'] == 1) {
                 exec("/etc/init.d/couchpotato develop");
+			}
+        }
 
         $object = array(
             "enable"            => array_boolval($params, 'enable'),
             "showtab"           => array_boolval($params, 'showtab'),
-            "cp_branch"         => $params['cp_branch']
+            "cp_branch"         => $params['cp_branch'],
+            "cp_repo"           => $params['cp_repo']
         );
 
-        if (false === $xmlConfig->replace("//services/couchpotato", $object))
+        if(false === $xmlConfig->replace("//services/couchpotato", $object)) {
             throw new OMVException(OMVErrorMsg::E_CONFIG_SET_OBJECT_FAILED, "//services/couchpotato");
+        }
 
         $dispatcher = &OMVNotifyDispatcher::getInstance();
         $dispatcher->notify(OMV_NOTIFY_MODIFY, "org.openmediavault.services.couchpotato", $object);

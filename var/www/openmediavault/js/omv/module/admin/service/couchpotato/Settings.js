@@ -76,6 +76,30 @@ Ext.define("OMV.module.admin.service.couchpotato.Settings", {
                 checked    : false
             },{
                 xtype      : "combo",
+                name       : "cp_repo",
+                fieldLabel : _("Repository"),
+                queryMode  : "local",
+                store      : Ext.create("Ext.data.ArrayStore", {
+                    fields : [
+                        "value",
+                        "text"
+                    ],
+                    data   : [
+                        [ 0, _("CouchPotato - Main") ]
+                    ]
+                }),
+                displayField  : "text",
+                valueField    : "value",
+                allowBlank    : false,
+                editable      : false,
+                triggerAction : "all",
+                value         : 0,
+                plugins       : [{
+                    ptype : "fieldinfo",
+                    text  : _("The repository you want to use. If changing from a current repository, setting will be wiped.")
+                }]
+            },{
+                xtype      : "combo",
                 name       : "cp_branch",
                 fieldLabel : _("Branch"),
                 queryMode  : "local",

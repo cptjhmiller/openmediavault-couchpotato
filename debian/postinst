@@ -18,35 +18,20 @@ case "$1" in
         echo "Cleaning old pid file..."
         rm /var/run/couchpotato -Rf
     fi
-
-    if [ -e /opt/couchpotato/git ]; then
-        mv /opt/couchpotato/git /opt/couchpotato/.git
-    fi
-
-    if [ ! -f /home/couchpotato/.couchpotato/settings.conf ]; then
-		mkdir /home/couchpotato/.couchpotato
-		chown couchpotato:users /home/couchpotato/.couchpotato -R
-        echo "[core]
-show_wizard = 1
-[updater]
-git_command = git" > /home/couchpotato/.couchpotato/settings.conf
-        chown couchpotato:users /home/couchpotato/.couchpotato/settings.conf
-    fi
-    cd /opt/couchpotato
-    chown -R couchpotato:users /opt/couchpotato
+	
+    chmod 775 /opt
+    chown root:users /opt
     chown couchpotato:users /etc/init.d/couchpotato
-    update-rc.d couchpotato defaults >&2
-    chmod 775 /opt/couchpotato -R
-    update-rc.d couchpotato disable >&2
-    git stash >&2
+	insserv -d couchpotato
     if ! omv_config_exists "/config/services/couchpotato"; then
         echo "Initial configuration."
         object="<enable>0</enable>"
         object="${object}<showtab>0</showtab>"
         object="${object}<cp_branch>0</cp_branch>"
+        object="${object}<cp_repo></cp_repo>"
         omv_config_add_element "/config/services" "couchpotato" "${object}" true
     fi
-
+    update-rc.d couchpotato disable
     ;;
     abort-upgrade|abort-remove|abort-deconfigure)
     ;;
