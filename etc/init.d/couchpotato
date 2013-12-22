@@ -23,7 +23,7 @@ PID_FILE=/var/run/couchpotato/couchpotato.pid
 PID_PATH=$(dirname $PID_FILE)
 NAME=couchpotato
 DESC=couchpotato
-DAEMON_OPTS=" CouchPotato.py --daemon --pid_file=${PID_FILE}"
+DAEMON_OPTS=" $APP_PATH/CouchPotato.py --daemon --pid_file=${PID_FILE}"
 ############### END EDIT ME ##################
 ISRUN=0
 
@@ -55,9 +55,7 @@ is_running()
 start() {
   if ! is_running; then
     echo "Starting $DESC"
-    #start-stop-daemon -c $RUN_AS --start --exec $DAEMON -- $DAEMON_OPTS
-    /usr/bin/python $DAEMON $DAEMON_OPTS
-    echo "start-stop-daemon -c $RUN_AS --start --exec $DAEMON -- $DAEMON_OPTS"
+    sudo -u $RUN_AS $DAEMON $DAEMON_OPTS
   else
     echo "$DESC is running"
   fi

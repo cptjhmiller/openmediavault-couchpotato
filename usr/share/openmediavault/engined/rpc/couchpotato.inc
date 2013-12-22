@@ -46,9 +46,11 @@ class OMVRpcServiceCouchpotato extends OMVRpcServiceAbstract {
         $object['enable']  = boolval($object['enable']);
         $object['showtab'] = boolval($object['showtab']);
         $object['cp_branch'] = intval($object['cp_branch']);
-        if($object['cp_repo'] != 0) {
+        if($object['cp_repo'] != "") {
           $object['cp_repo'] = intval($object['cp_repo']);
+          return $object;
         }
+        $object['cp_repo'] = '';
         return $object;
     }
 
@@ -62,24 +64,28 @@ class OMVRpcServiceCouchpotato extends OMVRpcServiceAbstract {
                 "enable"        : { "type" : "boolean" },
                 "showtab"       : { "type" : "boolean" },
                 "cp_branch"     : { "type" : "integer","enum":[0,1]},
-                "cp_repo"       : { "type" : "integer","enum":[0]}
+                "cp_repo"       : { "type" : "integer","enum":[0,1]}
             }
         }');
 
+        if($oldObject['cp_repo'] == "") {
+            $oldObject['cp_repo'] = 3;
+        }
+
         if($params['cp_repo'] != $oldObject['cp_repo']) {
             if($params['cp_repo'] == 0) {
-                $this->exec("/etc/init.d/sickbeard swap https://github.com/RuudBurger/CouchPotatoServer.git master");
-                $params['sb_branch'] = 0;
+                $this->exec("/etc/init.d/couchpotato swap https://github.com/RuudBurger/CouchPotatoServer.git master");
+                $params['cp_branch'] = 0;
             }
         }
 
         if($params['cp_branch'] != $oldObject['cp_branch']) {
             if($params['cp_branch'] == 0) {
                 exec("/etc/init.d/couchpotato master");
-			}
+            }
             if ($params['cp_branch'] == 1) {
                 exec("/etc/init.d/couchpotato develop");
-			}
+            }
         }
 
         $object = array(
@@ -96,7 +102,6 @@ class OMVRpcServiceCouchpotato extends OMVRpcServiceAbstract {
         $dispatcher = &OMVNotifyDispatcher::getInstance();
         $dispatcher->notify(OMV_NOTIFY_MODIFY, "org.openmediavault.services.couchpotato", $object);
     }
-
 }
 
 // Register the RPC service.
