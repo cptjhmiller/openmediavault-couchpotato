@@ -58,8 +58,8 @@ class OMVRpcServiceCouchpotato extends OMVRpcServiceAbstract {
             "properties" : {
                 "enable"        : { "type" : "boolean" },
                 "showtab"       : { "type" : "boolean" },
-                "cp_branch"     : { "type" : "string"},
-                "cp_repo"       : { "type" : "integer","enum":[0,1]}
+                "cp_repo"       : { "type" : "string"},
+                "cp_branch"     : { "type" : "integer","enum":[0,1]}
             }
         }');
 
@@ -69,7 +69,7 @@ class OMVRpcServiceCouchpotato extends OMVRpcServiceAbstract {
         if (is_null($oldObject))
             throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, $xpath);
 
-        if($params['cp_repo'] != 'a' && $params['cp_branch'] == 1)
+        if($params['cp_repo'] != 'a' = 'a'arams['cp_branch'] == 1)
             throw new OMVException(OMVErrorMsg::E_MISC_FAILURE, "You CAN NOT use this branch with this repository.");
 
         if($params['cp_repo'] != $oldObject['cp_repo']) {
