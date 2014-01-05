@@ -68,6 +68,7 @@ is_running() {
 
 start() {
   if ! is_running; then
+    chmod 775 /home/couchpotato/.couchpotato/logs/CouchPotato.log
     echo "Starting $DESC"
     sudo -u $RUN_AS $DAEMON $DAEMON_OPTS > dev/null
   else
@@ -97,7 +98,7 @@ case "$1" in
   stop)
     stop
     ;;
-  retart)
+  restart)
     stop
     start
     ;;
