@@ -23,9 +23,10 @@ PID_FILE=/var/run/couchpotato/couchpotato.pid
 PID_PATH=$(dirname $PID_FILE)
 NAME=couchpotato
 DESC=couchpotato
-DAEMON_OPTS=" $APP_PATH/CouchPotato.py --daemon --pid_file=${PID_FILE}"
+DATA_DIR=/home/couchpotato/.couchpotato
+EXTRA_DAEMON_OPTS=" --data_dir=${DATA_DIR}
+DAEMON_OPTS=" $APP_PATH/CouchPotato.py --quiet --daemon --pid_file=${PID_FILE} ${EXTRA_DAEMON_OPTS}"
 ############### END EDIT ME ##################
-ISRUN=0
 
 # Get lsb functions
 . /lib/lsb/init-functions
@@ -36,6 +37,12 @@ if [ ! -d $PID_PATH ]; then
     chown $RUN_AS $PID_PATH
 fi
 
+# Create DATA_DIR directory if not exist and ensure the Sickbeard user can write to it
+if [ ! -d $DATA_DIR ]; then
+    mkdir -p $DATA_DIR
+    chown $RUN_AS $DATA_DIR
+fi
+
 if [ -e $PID_FILE ]; then
     PID=`cat $PID_FILE`
     if ! kill -0 $PID > /dev/null 2>&1; then
@@ -44,8 +51,15 @@ if [ -e $PID_FILE ]; then
     fi
 fi
 
-is_running()
-{
+if [ ! -f $DATA_DIR/settings.conf ]; then
+    echo "[core]
+show_wizard = 1
+[updater]
+git_command = git" > $DATA_DIR/settings.conf
+    chown $RUN_AS $PID_PATH
+fi
+
+is_running() {
     if [ ! -e $PID_FILE ]; then
         return 1
     fi
@@ -55,7 +69,7 @@ is_running()
 start() {
   if ! is_running; then
     echo "Starting $DESC"
-    sudo -u $RUN_AS $DAEMON $DAEMON_OPTS
+    sudo -u $RUN_AS $DAEMON $DAEMON_OPTS > dev/null
   else
     echo "$DESC is running"
   fi
@@ -76,77 +90,12 @@ restart() {
   start
 }
 
-master() {
-  if is_running; then
-    ISRUN=1
-    stop
-  fi
-  cd $APP_PATH
-  sudo -u $RUN_AS git stash
-  sudo -u $RUN_AS git checkout master
-  #chown $RUN_AS:$RUN_GRP $APP_PATH -R
-  #chmod 775 $APP_PATH -R
-  #git stash
-  #if [ "$ISRUN" == 1 ]; then
-  #  start
-  #fi
-}
-
-develop() {
-  if is_running; then
-    ISRUN=1
-    stop
-  fi
-  cd $APP_PATH
-  sudo -u $RUN_AS git stash
-  sudo -u $RUN_AS git checkout develop
-  #chown $RUN_AS:$RUN_GRP $APP_PATH -R
-  #chmod 775 $APP_PATH -R
-  #git stash
-  #if [ "$ISRUN" == 1 ]; then
-  #  start
-  #fi
-}
-
-swap() {
-  if is_running; then
-    ISRUN=1
-    stop
-  fi
-  if [ -d $APP_PATH ]; then
-    rm -Rf $APP_PATH
-  fi
-  #sudo -u $RUN_AS git clone $1 -b $2 $APP_PATH
-  sudo -u $RUN_AS git clone "$1" -b "$2" $APP_PATH
-  sudo -u $RUN_AS echo "[core]
-show_wizard = 1
-[updater]
-git_command = git" > /home/couchpotato/.couchpotato/settings.conf
-  chown couchpotato:users /home/couchpotato/.couchpotato/settings.conf
-  #chown $RUN_AS:$RUN_GRP $APP_PATH -R
-  #chmod 775 $APP_PATH -R
-  #cd $APP_PATH
-  #git stash
-  #if [ "$ISRUN" == 1 ]; then
-  #  start-stop-daemon -c $RUN_AS --start --exec $DAEMON -- $DAEMON_OPTS
-  #fi
-}
-
 case "$1" in
   start)
     start
     ;;
   stop)
     stop
-    ;;
-  swap)
-    swap $2 $3
-    ;;
-  master)
-    master
-    ;;
-  develop)
-    develop
     ;;
   retart)
     stop

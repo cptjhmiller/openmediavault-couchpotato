@@ -19,12 +19,6 @@ case "$1" in
         rm /var/run/couchpotato -Rf
     fi
 
-    if [ ! -d /home/couchpotato/.couchpotato ]; then
-        mkdir /home/couchpotato/.couchpotato
-        chmod 775 /home/couchpotato/.couchpotato
-		chown couchpotato:users /home/couchpotato/.couchpotato
-    fi
-	
     chmod 775 /opt
     chown root:users /opt
     chown couchpotato:users /etc/init.d/couchpotato

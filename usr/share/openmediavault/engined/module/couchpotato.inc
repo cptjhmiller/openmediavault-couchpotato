@@ -27,7 +27,7 @@ class OMVModuleCouchpotato extends OMVModuleServiceAbstract
     implements OMVINotifyListener, OMVIModuleServiceStatus {
 
     public function getName() {
-        return "Couchpotato";
+        return "couchpotato";
     }
 
     public function getStatus() {

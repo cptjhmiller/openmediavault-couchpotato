@@ -35,28 +35,23 @@ class OMVRpcServiceCouchpotato extends OMVRpcServiceAbstract {
         $this->registerMethod('setSettings');
     }
 
-    public function getSettings($params, $context) {
+    function getSettings($params, $context) {
         global $xmlConfig;
-        $this->validateMethodContext($context, array( "role" => OMV_ROLE_ADMINISTRATOR ));
+        $this->validateMethodContext($context, array(
+            "role" => OMV_ROLE_ADMINISTRATOR ));
         $object = $xmlConfig->get("//services/couchpotato");
-        if(is_null($object)) {
-            throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, "//services/couchpotato");
-        }
 
-        $object['enable']  = boolval($object['enable']);
+        if(is_null($object))
+            throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, "//services/couchpotato");
+
+        $object['enable'] = boolval($object['enable']);
         $object['showtab'] = boolval($object['showtab']);
         $object['cp_branch'] = intval($object['cp_branch']);
-        if($object['cp_repo'] != "") {
-          $object['cp_repo'] = intval($object['cp_repo']);
-          return $object;
-        }
-        $object['cp_repo'] = '';
         return $object;
     }
 
     public function setSettings($params, $context) {
         global $xmlConfig;
-        $oldObject = $xmlConfig->get("//services/couchpotato");
         $this->validateMethodContext($context, array( "role" => OMV_ROLE_ADMINISTRATOR ));
         $this->validateMethodParams($params, '{
             "type" : "object",
@@ -68,26 +63,28 @@ class OMVRpcServiceCouchpotato extends OMVRpcServiceAbstract {
             }
         }');
 
-        if($oldObject['cp_repo'] == "") {
-            $oldObject['cp_repo'] = 3;
-        }
+        $xpath = "//services/couchpotato";
+        $oldObject = $xmlConfig->get($xpath);
+
+        if (is_null($oldObject))
+            throw new OMVException(OMVErrorMsg::E_CONFIG_GET_OBJECT_FAILED, $xpath);
+
+        if($params['cp_repo'] == 1 && $params['cp_branch'] == 1)
+            throw new OMVException(OMVErrorMsg::E_MISC_FAILURE, "You CAN NOT use this branch with this repository.");
 
         if($params['cp_repo'] != $oldObject['cp_repo']) {
-            if($params['cp_repo'] == 0) {
-                $this->exec("/etc/init.d/couchpotato swap https://github.com/RuudBurger/CouchPotatoServer.git master");
-                $params['cp_branch'] = 0;
-            }
-        }
-
-        if($params['cp_branch'] != $oldObject['cp_branch']) {
+            $params['cp_branch'] = 0;
+            $cmd = "omv-mkconf couchpotato swap_" . $params['cp_repo'];
+        } elseif($params['cp_branch'] != $oldObject['cp_branch']) {
             if($params['cp_branch'] == 0) {
-                exec("/etc/init.d/couchpotato master");
+                $cmd = "omv-mkconf couchpotato master 2>&1";
             }
-            if ($params['cp_branch'] == 1) {
-                exec("/etc/init.d/couchpotato develop");
+            if($params['cp_branch'] == 1) {
+                $cmd = "omv-mkconf couchpotato develop 2>&1";
             }
         }
 
+        $this->exec($cmd);
         $object = array(
             "enable"            => array_boolval($params, 'enable'),
             "showtab"           => array_boolval($params, 'showtab'),
