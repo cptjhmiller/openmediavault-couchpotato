@@ -17,14 +17,14 @@ set -e
 ############### BEGIN EDIT ME ################
 RUN_AS=couchpotato
 RUN_GRP=users
-APP_PATH=/opt/couchpotato/
+APP_PATH=/opt/couchpotato
 DAEMON=/usr/bin/python
 PID_FILE=/var/run/couchpotato/couchpotato.pid
 PID_PATH=$(dirname $PID_FILE)
 NAME=couchpotato
 DESC=couchpotato
 DATA_DIR=/home/couchpotato/.couchpotato
-EXTRA_DAEMON_OPTS=" --data_dir=${DATA_DIR}
+EXTRA_DAEMON_OPTS=" --data_dir=${DATA_DIR}"
 DAEMON_OPTS=" $APP_PATH/CouchPotato.py --quiet --daemon --pid_file=${PID_FILE} ${EXTRA_DAEMON_OPTS}"
 ############### END EDIT ME ##################
 
@@ -52,7 +52,7 @@ if [ -e $PID_FILE ]; then
 fi
 
 if [ ! -f $DATA_DIR/settings.conf ]; then
-    echo "[core]
+    sudo -u $RUN_AS echo "[core]
 show_wizard = 1
 [updater]
 git_command = git" > $DATA_DIR/settings.conf
