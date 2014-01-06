@@ -24,7 +24,7 @@ swap_a() {
   if [ -d $DATA_DIR ]; then
     rm -Rf $DATA_DIR
   fi
-  sudo -u $RUN_AS git clone "https://github.com/RuudBurger/CouchPotatoServer.git" -b "master" $APP_PATH
+  sudo -u $RUN_AS git clone https://github.com/RuudBurger/CouchPotatoServer.git -b master $APP_PATH
 }
 
 swap_b() {
